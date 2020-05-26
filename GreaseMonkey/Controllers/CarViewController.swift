@@ -22,6 +22,7 @@ class CarViewController: UIViewController {
     var cars: Results<Car>?
     
     override func viewDidLoad() {
+        //print("in CarView, AppFontSize is \(AppFontSize)")
         super.viewDidLoad()
         
         tableView.rowHeight = 120
@@ -42,6 +43,14 @@ class CarViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
+//        if let indexPath = tableView.indexPathForSelectedRow {
+//            
+//            //tableView.deselectRow(at: indexPath, animated: false)
+//            print("cell selected at \(indexPath.row)")
+//            
+//        }
+        
         loadCars()
     }
     
@@ -56,6 +65,7 @@ class CarViewController: UIViewController {
             
             if let indexPath = tableView.indexPathForSelectedRow {
                 destinationVC.selectedCar = cars?[indexPath.row]
+                destinationVC.screenColor = cars?[indexPath.row].color ?? UIColor.systemGray
             }
         }
         else if segue.identifier == K.addCarSegue {
@@ -71,6 +81,14 @@ class CarViewController: UIViewController {
         
         tableView.reloadData()
     }
+    
+    
+    @IBAction func fontSizePressed(_ sender: Any) {
+//        U.fontSizePressed()
+//        searchBar.searchTextField.font = searchBar.searchTextField.font?.withSize(AppFontSize)
+//
+//        tableView.reloadData()
+    }
 }
 
 extension CarViewController: UITableViewDataSource {
@@ -83,52 +101,35 @@ extension CarViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: K.carCellIdentifier, for: indexPath) as! CarCell
         cell.delegate = self
         
+        //cell.messageLabel.font = cell.messageLabel.font.withSize(AppFontSize)
+        
         if let currentCar = cars?[indexPath.row] {
             
-            // cell color
-            var cellColor = UIColor(named: K.BrandColors.BrandGreen)
-            
-            if currentCar.aggregatedStatus == K.carStatusGreen {
-                cellColor = UIColor(named: K.BrandColors.BrandGreen)
-            } else if currentCar.aggregatedStatus == K.carStatusYellow {
-                cellColor = UIColor(named: K.BrandColors.BrandYellow)
-            } else if currentCar.aggregatedStatus == K.carStatusRed {
-                cellColor = UIColor(named: K.BrandColors.BrandRed)
-            } else {
-                cellColor = UIColor(named: K.BrandColors.BrandGrey)
-            }
+            // flag
+            cell.flagImg.isHidden = currentCar.hasFlagged ? false : true
             
             // rego label
             cell.regoLabel.text = currentCar.rego
-            cell.regoLabel.textColor = cellColor
+            cell.regoLabel.textColor = currentCar.color
             
             // status message
-            let daysLeft = currentCar.daysLeft
-            let totalWorkDay = currentCar.totalWorkDay
-            cell.messageLabel.textColor = cellColor!
+            cell.messageLabel.textColor = currentCar.color
             var statusMessage: String
             
-            if currentCar.datePromised == nil {
-                statusMessage = "progress info unavailable (missing Date Promised)"
+            if currentCar.hasFlagged {
+                statusMessage = "* Special\nsee car details"
+            } else if currentCar.datePromised == nil {
+                statusMessage = "NA (missing Date Promised)"
+            } else if currentCar.aggregatedStatus == K.carStatusPurple {
+                statusMessage = "Pick up ready\n\(currentCar.coreStatus)"
             } else {
                 
-                statusMessage = "total work day is \(totalWorkDay)"
-                
-                if daysLeft == 0 {
-                    statusMessage += ", due today"
-                } else if daysLeft == 1 {
-                    statusMessage += ", due tomorrow"
-                } else if daysLeft < 0 {
-                    statusMessage += ", overdue by \(-1 * daysLeft) days"
-                }
-                else {
-                    statusMessage += ", due in \(daysLeft) days"
-                }
+                statusMessage = "Target is \(U.getFormattedDate(with: K.dateFormatShortter, date: currentCar.datePromised))\n\(currentCar.coreStatus)"
             }
             cell.messageLabel.text = statusMessage
             
             // progress bar
-            cell.progressBar.tintColor = cellColor!
+            cell.progressBar.tintColor = currentCar.color
             cell.progressBar.progress = 1 - Float(currentCar.daysLeft) / Float(currentCar.totalWorkDay)
             
             // pie chart
@@ -136,7 +137,7 @@ extension CarViewController: UITableViewDataSource {
             
             let pieChart = cell.pieChartView as! PieChartView
             
-            pieChart.data = customizeChart(dataPoints: [".", ".."], values: [progress, 1 - progress], color: cellColor! )
+            pieChart.data = customizeChart(dataPoints: [".", ".."], values: [progress, 1 - progress], color: currentCar.color! )
             pieChart.legend.enabled = false
             pieChart.drawEntryLabelsEnabled = false
             
@@ -161,7 +162,7 @@ extension CarViewController: UITableViewDataSource {
         let pieChartDataSet = PieChartDataSet(entries: dataEntries, label: nil)
         
         pieChartDataSet.colors = [color, UIColor.systemGray]
-                
+        
         // 3. Set ChartData - use info from "2" as the chart's data, here we also changing number formats, eg. 15.0 -> 15
         let pieChartData = PieChartData(dataSet: pieChartDataSet)
         
@@ -175,14 +176,24 @@ extension CarViewController: UITableViewDataSource {
         return pieChartData
     }
     
+    
 }
 
 extension CarViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: K.carDetailSegue, sender: self)
         
-        tableView.deselectRow(at: indexPath, animated: true)
+        //        let cell = tableView.cellForRow(at: indexPath)
+        //        cell?.backgroundColor = .red
+        
+        performSegue(withIdentifier: K.carDetailSegue, sender: self)
     }
+    
+    //    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    //        print("--------- deselect cell at \(indexPath.row)")
+    //
+    //        let cell = tableView.cellForRow(at: indexPath)
+    //        cell?.backgroundColor = .clear
+    //    }
 }
 
 extension CarViewController: UISearchBarDelegate {
@@ -214,13 +225,13 @@ extension CarViewController: UISearchBarDelegate {
 extension CarViewController: SwipeTableViewCellDelegate {
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
         guard orientation == .right else { return nil }
-
+        
         let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
-
+            
             if let delCar = self.cars?[indexPath.row] {
-
+                
                 let realm = try! Realm()
-
+                
                 // del jobs
                 for delJob in delCar.jobs {
                     do {
@@ -231,7 +242,7 @@ extension CarViewController: SwipeTableViewCellDelegate {
                         print("Error deleting car job '\(delJob.name)'. \(error)")
                     }
                 }
-
+                
                 // del car
                 do {
                     try realm.write {
@@ -240,21 +251,14 @@ extension CarViewController: SwipeTableViewCellDelegate {
                 } catch {
                     print("Error deleting car '\(delCar.rego)'. \(error)")
                 }
-
-                //self.tableView.reloadData()
+                
+                self.tableView.reloadData()
             }
         }
-
+        
         // customize the action appearance
         deleteAction.image = UIImage(named: "delete-icon")
-
+        
         return [deleteAction]
-    }
-
-    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
-        var options = SwipeOptions()
-        options.expansionStyle = .destructive
-        //options.transitionStyle = .border
-        return options
     }
 }

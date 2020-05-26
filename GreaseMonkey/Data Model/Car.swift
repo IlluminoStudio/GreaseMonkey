@@ -16,20 +16,108 @@ class Car: Object {
     @objc dynamic var dateCheckIn: Date = Date()
     @objc dynamic var customer: String? = ""
     @objc dynamic var contact: String? = ""
+    @objc dynamic var notes: String? = ""
     
     let jobs = List<Job>()
+    
+    var hasFlagged: Bool! {
+        for job in jobs {
+            if job.flagged == true {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    var coreStatus: String {
+        
+        var s: String = "NA"
+        
+        if hasFlagged {
+            s = "special"
+        } else if datePromised == nil {
+            s = ""
+        } else if aggregatedStatus == K.carStatusPurple {
+            s = "due \(-1 * daysLeft) day" + ((-1 * daysLeft) > 1 ? "s" : "" + " ago")
+        } else {
+            if daysLeft == 0 {
+                s = "due today"
+            } else if daysLeft == 1 {
+                s = "due tomorrow"
+            } else if daysLeft < 0 {
+                s = "\(-1 * daysLeft) day" + "\((-1 * daysLeft) > 1 ? "s" : "")" + " overdue"
+            }
+            else {
+                s = "\(daysLeft) days left"
+            }
+        }
+        
+        return s
+        
+        //        var statusMessage: String
+        //
+        //        if currentCar.hasFlagged {
+        //            statusMessage = "* Special [See case notes]"
+        //        } else if currentCar.datePromised == nil {
+        //            statusMessage = "NA (missing Date Promised)"
+        //        } else if currentCar.aggregatedStatus == K.carStatusPurple {
+        //            statusMessage = "Pick up ready\ndue \(-1 * daysLeft) day" + ((-1 * daysLeft) > 1 ? "s" : "" + " ago")
+        //        } else {
+        //
+        //            statusMessage = "Target is \(U.getFormattedDate(with: K.dateFormatShortter, date: currentCar.datePromised))"
+        //
+        //            if daysLeft == 0 {
+        //                statusMessage += "\n due today"
+        //            } else if daysLeft == 1 {
+        //                statusMessage += "\n due tomorrow"
+        //            } else if daysLeft < 0 {
+        //                statusMessage += "\n" + "\(-1 * daysLeft) day" + "\((-1 * daysLeft) > 1 ? "s" : "")" + " overdue"
+        //            }
+        //            else {
+        //                statusMessage += "\n\(daysLeft) days left"
+        //            }
+        //        }
+        //        cell.messageLabel.text = statusMessage
+    }
+    
+    var color: UIColor? {
+        var c = UIColor(named: K.BrandColors.BrandGreen)
+        
+        if aggregatedStatus == K.carStatusGreen {
+            c = UIColor(named: K.BrandColors.BrandGreen)
+        } else if aggregatedStatus == K.carStatusOrange {
+            c = UIColor(named: K.BrandColors.BrandOrange)
+        } else if aggregatedStatus == K.carStatusRed {
+            c = UIColor(named: K.BrandColors.BrandRed)
+        } else if aggregatedStatus == K.carStatusPurple {
+            c = UIColor(named: K.BrandColors.BrandPurple)
+        } else {
+            c = UIColor(named: K.BrandColors.BrandGrey)
+        }
+        
+        return c
+    }
     
     var aggregatedStatus: Int {
         var ags = K.carStatusGreen
         
-        if percentageComplete >= 1.0 { // all done, won't bother to look at the rest
-            ags = K.carStatusGreen
+        if hasFlagged == true {
+            ags = K.carStatusRed // commander override, highest priority
+        } else if datePromised == nil {
+            ags = K.carStatusGrey
+        } else if percentageComplete >= 1.0 {
+            if U.compareDateOnly(date1: K.today, date2: datePromised!) == K.DateCompare.Later {
+                ags = K.carStatusPurple // car done, however customer pick-up overdue
+            } else {
+                ags = K.carStatusGreen // car done, customer haven't pick-up, so no worries
+            }
         } else if datePromised == nil {
             ags = K.carStatusGrey
         } else if daysLeft < 0 { // overdue
             ags = K.carStatusRed
         } else if daysLeft < 2 { // deadline approaching
-            ags = K.carStatusYellow
+            ags = K.carStatusOrange
         } else { // not done, but not duing soon, so no worries
             ags = K.carStatusGreen
         }
@@ -89,6 +177,7 @@ class Car: Object {
         print("dateCheckIn: \(U.getFormattedDate(with: K.dateFormatLong, date: dateCheckIn))")
         print("customer: \(customer!)")
         print("contact: \(contact!)")
+        print("notes: \(notes!)")
         print("AGS: \(aggregatedStatus)")
     }
 }

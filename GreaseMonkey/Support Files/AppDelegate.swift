@@ -8,10 +8,14 @@
 
 import UIKit
 import RealmSwift
+import IQKeyboardManagerSwift
+
+//var AppFontSize: CGFloat = 8 // deliberately set default to a small font in order to detect runtime errors
+//var AppFontSizeIndex = -1
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
     var window: UIWindow?
 
 
@@ -20,11 +24,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print(Realm.Configuration.defaultConfiguration.fileURL ?? "Realm file location not defined")
         
         do {
-            // let realm = try Realm() // comment out to remove warning
-            _ = try Realm()
+            _ /*(realm)*/ = try Realm()
         } catch {
             print("Error initialising new realm, \(error)")
         }
+        
+        IQKeyboardManager.shared.enable = true
+        IQKeyboardManager.shared.enableAutoToolbar = true
+        IQKeyboardManager.shared.shouldResignOnTouchOutside = true
+        
+//        if UserDefaults.standard.object(forKey: K.userDefaultFontSizeIndex) == nil {
+//            K.Defaults.set(K.DefaultFontSizeIndex, forKey: K.userDefaultFontSizeIndex)
+//        }
+//
+//        AppFontSizeIndex = K.Defaults.integer(forKey: K.userDefaultFontSizeIndex)
+//        AppFontSize = CGFloat(K.FontSize[AppFontSizeIndex])
         
         return true
     }

@@ -6,7 +6,7 @@
 //  Copyright © 2020 Test Co. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 class U {
     static func getFormattedDate(with format: String = K.dateFormatShort, date: Date? = nil) -> String {
@@ -25,15 +25,23 @@ class U {
         let date1Start = K.calendar.startOfDay(for: date1)
         let date2Start = K.calendar.startOfDay(for: date2)
         if date1Start > date2Start {
-            result = 1 // date1 is LATER than date2
+            result = K.DateCompare.Later
         } else if date1Start < date2Start {
-            result = -1 // EARLIER
+            result = K.DateCompare.Earlier
         } else {
-            result = 0 // EQUAL
+            result = K.DateCompare.SameDay
         }
         
         return result
     }
+    
+//    static func fontSizePressed() {
+//        
+//        AppFontSizeIndex = (AppFontSizeIndex + 1) % K.FontSize.count
+//        AppFontSize = CGFloat(K.FontSize[AppFontSizeIndex])
+//        
+//        K.Defaults.set(AppFontSizeIndex, forKey: K.userDefaultFontSizeIndex)
+//    }
     
     static func validateDateString(_ s: String, dateFormatStr: String = "E d MMM, yyyy") -> Bool {
         var result: Bool = false
@@ -58,6 +66,28 @@ class U {
         }
 
         return failedResult
+    }
+    
+    //usage: U.printSizeReport(self)
+    static func printSizeReport(_ controller: UIViewController) {
+        
+        var sizeReport = ""
+        
+        sizeReport = "\(UIDevice.current.userInterfaceIdiom == .pad ? "pad" : "not pad")"
+        
+        let sizeClasses = ["U", "C", "R"]
+        
+        sizeReport += "   w\(sizeClasses[controller.traitCollection.horizontalSizeClass.rawValue]) h\(sizeClasses[controller.traitCollection.verticalSizeClass.rawValue])"
+        
+        if UIDevice.current.orientation.isPortrait {
+            sizeReport += "   portrait"
+        } else if UIDevice.current.orientation.isLandscape {
+            sizeReport += "   landscape"
+        } else {
+            sizeReport += "   unknown orientation"
+        }
+        
+        print(sizeReport)
     }
 
 }

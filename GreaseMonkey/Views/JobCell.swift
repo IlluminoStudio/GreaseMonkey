@@ -7,18 +7,23 @@
 //
 
 import UIKit
+import SwipeCellKit
 
-class JobCell: UITableViewCell {
+class JobCell: SwipeTableViewCell {
 
+    @IBOutlet weak var tickImg: UIImageView!
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var flagImg: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
     
+    @IBAction func addButtonPressed(_ sender: Any) {
+        print("add pressed")
+    }
 }

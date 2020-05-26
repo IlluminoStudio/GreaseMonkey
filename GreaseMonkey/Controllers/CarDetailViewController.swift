@@ -13,18 +13,25 @@ import SwipeCellKit
 class CarDetailViewController: UIViewController {
     
     @IBOutlet weak var dateCreateLabel: UILabel!
-    @IBOutlet weak var dateCheckInTextField: UITextField!  
+    @IBOutlet weak var dateCheckInLabel: UILabel!
+    @IBOutlet weak var datePromisedLabel: UILabel!
+    @IBOutlet weak var customerLabel: UILabel!
+    @IBOutlet weak var contactLabel: UILabel!
+    @IBOutlet weak var jobsLabel: UILabel!    
+    @IBOutlet weak var jobPlusSignLabel: UIButton!
+    
+    @IBOutlet weak var dateCreateLabelLeft: UILabel!
+    @IBOutlet weak var dateCheckInTextField: UITextField!
     @IBOutlet weak var datePromisedTextField: UITextField!
     @IBOutlet weak var customerTextField: UITextField!
     @IBOutlet weak var contactTextField: UITextField!
     @IBOutlet weak var statusLabel: UILabel!
+    @IBOutlet weak var notesTextView: UITextView!
     
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var updateCarBtn: UIButton!
     
-    let datePicker_Promised = UIDatePicker()
-    let datePicker_CheckIn = UIDatePicker()
+    var screenColor = UIColor.systemGray
     
     var jobs: Results<Job>?
     
@@ -35,26 +42,110 @@ class CarDetailViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        //print("in CarDetailView, AppFontSize is \(AppFontSize)")
         super.viewDidLoad()
+        
+        refreshFont()
+        
         tableView.dataSource = self
         tableView.delegate = self
         searchBar.delegate = self
+        notesTextView.delegate = self
         
-        statusLabel.text = ""
+        tableView.register(UINib(nibName: K.jobCellNibName, bundle: nil), forCellReuseIdentifier: K.jobCellIdentifier)
         
-        createDatePicker_Promised()
-        createDatePicker_CheckIn()
+        //_ = CustomDatePicker(textField: datePromisedTextField)
+        _ = CustomDatePicker(textField: datePromisedTextField, textColor: screenColor)
+        _ = CustomDatePicker(textField: dateCheckInTextField, textColor: screenColor)
+        
+        // long press handling
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        longPressGesture.minimumPressDuration = 0.5
+        self.tableView.addGestureRecognizer(longPressGesture)
+        
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.backgroundColor = screenColor
+        self.navigationItem.standardAppearance = navBarAppearance
+        
+    }
+    
+    private func refreshFont() {
+        //        datePromisedTextField.font = .preferredFont(forTextStyle: .body)
+        //        datePromisedTextField.adjustsFontForContentSizeCategory = true
+        
+//        let targetFont = self.dateCreateLabel.font!.withSize(AppFontSize)
+//        
+//        dateCreateLabelLeft.font = targetFont
+//        dateCheckInLabel.font = targetFont
+//        datePromisedLabel.font = targetFont
+//        customerLabel.font = targetFont
+//        contactLabel.font = targetFont
+//        jobsLabel.font = targetFont
+//        jobPlusSignLabel.titleLabel?.font = targetFont
+//        
+//        dateCreateLabel.font = targetFont
+//        dateCheckInTextField.font = targetFont
+//        datePromisedTextField.font = targetFont
+//        customerTextField.font = targetFont
+//        contactTextField.font = targetFont
+//        statusLabel.font = targetFont
+//        notesTextView.font = targetFont
+//        searchBar.searchTextField.font = targetFont
+//        
+//        //createButton.titleLabel!.font = targetFont
+//        
+//        tableView.reloadData()
+    }
+    
+    @IBAction func fontSizePressed(_ sender: UIBarButtonItem) {
+        //U.fontSizePressed()
+        
+        //refreshFont()
+    }
+    
+    @objc func handleLongPress(longPressGesture: UILongPressGestureRecognizer) {
+        let p = longPressGesture.location(in: self.tableView)
+        let indexPath = self.tableView.indexPathForRow(at: p)
+        
+        if indexPath != nil, longPressGesture.state == UIGestureRecognizer.State.began {
+            
+            if let jobItem = jobs?[indexPath!.row] {
+                
+                let realm = try! Realm()
+                do {
+                    try realm.write {
+                        jobItem.flagged = !jobItem.flagged
+                    }
+                } catch {
+                    print("Error saving flag status. \(error)")
+                }
+            }
+            
+            tableView.reloadData()
+            
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         
-        self.title = "\(selectedCar?.rego ?? "Unknown Car")"
+        self.view.tintColor = screenColor
+        
+        self.title = "\(selectedCar?.rego ?? "Unknown Car")" + " - \(selectedCar?.coreStatus ?? "NA")"
         
         dateCreateLabel.text = U.getFormattedDate(with: K.dateFormatLong, date: selectedCar?.dateCreated ?? Date())
-        dateCheckInTextField.text = U.getFormattedDate(date: selectedCar?.dateCheckIn ?? Date())
-        datePromisedTextField.text = U.getFormattedDate(date: selectedCar?.datePromised ?? Date())
+        dateCheckInTextField.text = U.getFormattedDate(date: selectedCar?.dateCheckIn)
+        datePromisedTextField.text = U.getFormattedDate(date: selectedCar?.datePromised)
         customerTextField.text = selectedCar?.customer
         contactTextField.text = selectedCar?.contact
+        statusLabel.text = ""
+        
+        notesTextView.text = selectedCar?.notes
+        if notesTextView.text != "" {
+            notesTextView.textColor = .label
+        } else {
+            notesTextView.text = K.notesPlaceHolder
+            notesTextView.textColor = .placeholderText
+        }
         
         loadJobs()
     }
@@ -103,79 +194,15 @@ class CarDetailViewController: UIViewController {
         
     }
     
-    func createDatePicker_Promised() {
-        
-        // toolbar
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        
-        // bar button
-        let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(datePickerDonePressed_Promised))
-        toolbar.setItems([doneBtn], animated: true)
-        
-        // assign toolbar
-        datePromisedTextField.inputAccessoryView = toolbar
-        
-        // assign date picker to the text field
-        datePromisedTextField.inputView = datePicker_Promised
-        
-        // date picker mode
-        datePicker_Promised.datePickerMode = .date
-        datePicker_Promised.addTarget(self, action: #selector(datePickerValueChanged_Promised), for: .valueChanged)
-    }
-    
-    @objc func datePickerValueChanged_Promised() {
-        
-        datePromisedTextField.text = U.getFormattedDate(date: datePicker_Promised.date)
-    }
-    
-    @objc func datePickerDonePressed_Promised() {
-        
-        datePromisedTextField.text = U.getFormattedDate(date: datePicker_Promised.date)
-        self.view.endEditing(true)
-    }
-    
-    func createDatePicker_CheckIn() {
-        
-        // toolbar
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        
-        // bar button
-        let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(datePickerDonePressed_CheckIn))
-        toolbar.setItems([doneBtn], animated: true)
-        
-        // assign toolbar
-        dateCheckInTextField.inputAccessoryView = toolbar
-        
-        // assign date picker to the text field
-        dateCheckInTextField.inputView = datePicker_CheckIn
-        
-        // date picker mode
-        datePicker_CheckIn.datePickerMode = .date
-        datePicker_CheckIn.addTarget(self, action: #selector(datePickerValueChanged_CheckIn), for: .valueChanged)
-    }
-    
-    @objc func datePickerValueChanged_CheckIn() {
-        
-        dateCheckInTextField.text = U.getFormattedDate(date: datePicker_CheckIn.date)
-        //newCar.dateCheckIn = datePicker_CheckIn.date
-    }
-    
-    @objc func datePickerDonePressed_CheckIn() {
-        dateCheckInTextField.text = U.getFormattedDate(date: datePicker_CheckIn.date)
-        self.view.endEditing(true)
-        
-    }
-    
     @IBAction func updateCarPressed(_ sender: Any) {
-    
+        
         if let safeSelectedCar = selectedCar {
             // 1. TRY to convert
             let newCheckInDate = U.stringToDate(dateCheckInTextField.text!)
             let newPromisedDate = U.stringToDate(datePromisedTextField.text!)
             let newCustomer = customerTextField.text
             let newContact = contactTextField.text
+            let newNotes = notesTextView.text!
             
             // 2. validate
             // validation - must have valid check-in date, and it cannot be over 1 year
@@ -210,6 +237,13 @@ class CarDetailViewController: UIViewController {
                 }
             }
             
+            //            // validation - if flagged, then must specify notes
+            //            if (selectedCar?.hasFlagged)!, newNotes == K.notesPlaceHolder {
+            //                statusLabel.text = "Must specify notes when car is flagged"
+            //
+            //                return
+            //            }
+            
             // write to db
             DispatchQueue.main.async {
                 let realm = try! Realm()
@@ -219,6 +253,7 @@ class CarDetailViewController: UIViewController {
                         safeSelectedCar.datePromised = newPromisedDate
                         safeSelectedCar.customer = newCustomer
                         safeSelectedCar.contact = newContact
+                        safeSelectedCar.notes = newNotes
                     }
                     
                     self.statusLabel.text = "Updated car \(safeSelectedCar.rego)"
@@ -237,17 +272,21 @@ extension CarDetailViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: K.carDetailCellName, for: indexPath) as! SwipeTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: K.jobCellIdentifier, for: indexPath) as! JobCell
         cell.delegate = self
+        
+        //cell.nameLabel.font = cell.nameLabel.font.withSize(AppFontSize)
         
         if let jobItem = jobs?[indexPath.row] {
             
-            cell.textLabel?.text = jobItem.name
-            cell.accessoryType = jobItem.done ? .checkmark : .none
+            cell.nameLabel.text = jobItem.name
+            cell.tickImg.isHidden = jobItem.done ? false : true
+            cell.flagImg.isHidden = jobItem.flagged ? false : true
+            //cell.nameLabel.font = .preferredFont(forTextStyle: .body)
             
         } else {
             
-            cell.textLabel?.text = "No Jobs Added Yet"
+            cell.nameLabel?.text = "No Jobs Added Yet"
         }
         
         return cell
@@ -300,39 +339,48 @@ extension CarDetailViewController: UISearchBarDelegate {
         }
     }
     
+    
 }
 
 extension CarDetailViewController: SwipeTableViewCellDelegate {
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
         guard orientation == .right else { return nil }
-
+        
         let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
-                        if let delJob = self.jobs?[indexPath.row] {
-            
-                            let realm = try! Realm()
-                            do {
-                                try realm.write {
-                                    realm.delete(delJob)
-                                }
-            
-                            } catch {
-                                print("Error deleting job '\(delJob.name)'. \(error)")
-                            }
-            
-                            //self.tableView.reloadData()
-                        }
+            if let delJob = self.jobs?[indexPath.row] {
+                
+                let realm = try! Realm()
+                do {
+                    try realm.write {
+                        realm.delete(delJob)
+                    }
+                    
+                } catch {
+                    print("Error deleting job '\(delJob.name)'. \(error)")
+                }
+                
+                self.tableView.reloadData()
+            }
         }
-
-        // customize the action appearance
-        //deleteAction.image = UIImage(named: "delete-icon")
-
+        
         return [deleteAction]
     }
+}
+
+extension CarDetailViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if notesTextView.text == K.notesPlaceHolder {
+            notesTextView.text = ""
+            notesTextView.textColor = .label
+            //notesTextView.font = notesTextView.font!.withSize(14)
+        }
+    }
     
-    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
-        var options = SwipeOptions()
-        options.expansionStyle = .destructive
-        options.transitionStyle = .border
-        return options
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if notesTextView.text == "" {
+            notesTextView.text = K.notesPlaceHolder
+            notesTextView.textColor = .placeholderText
+            //notesTextView.font = notesTextView.font!.withSize(17)
+        }
     }
 }

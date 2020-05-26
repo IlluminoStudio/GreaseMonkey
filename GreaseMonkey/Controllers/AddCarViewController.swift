@@ -11,33 +11,54 @@ import RealmSwift
 
 class AddCarViewController: UIViewController {
     
+    // labels
+    @IBOutlet weak var regoLabel: UILabel!
+    @IBOutlet weak var dateCheckInLabel: UILabel!
+    @IBOutlet weak var datePromisedLabel: UILabel!
+    @IBOutlet weak var customerLabel: UILabel!
+    @IBOutlet weak var contactLabel: UILabel!
+    
+    // user input fields
     @IBOutlet weak var regoTextField: UITextField!
     @IBOutlet weak var dateCheckInTextField: UITextField!
     @IBOutlet weak var datePromisedTextField: UITextField!
     @IBOutlet weak var customerTextField: UITextField!
     @IBOutlet weak var contactTextField: UITextField!
     @IBOutlet weak var statusLabel: UILabel!
+    @IBOutlet weak var createButton: UIButton!
     
-    
-    let datePicker_Promised = UIDatePicker()
-    let datePicker_CheckIn = UIDatePicker()
     let newCar = Car()
     
     override func viewDidLoad() {
+        //print("in AddCarView, AppFontSize is \(AppFontSize)")
+        super.viewDidLoad()
         
         statusLabel.numberOfLines = 0
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         
         clearView()
         
-        createDatePicker_Promised()
-        createDatePicker_CheckIn()
+        _ = CustomDatePicker(textField: datePromisedTextField, textColor: self.view.tintColor)
+        _ = CustomDatePicker(textField: dateCheckInTextField, textColor: self.view.tintColor)
     }
     
-    func clearView() {
+    //    override func viewDidLayoutSubviews() {
+    //        super.viewDidLayoutSubviews()
+    //        U.printSizeReport(self)
+    //
+    //    }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
         
-        datePromisedTextField.textAlignment = .center
-        dateCheckInTextField.textAlignment = .center
+        U.printSizeReport(self)
+    }
+    
+    private func clearView() {
+        
+        refreshFont()
+        
+        //datePromisedTextField.textAlignment = .center
+        //dateCheckInTextField.textAlignment = .center
         
         regoTextField.text = ""
         dateCheckInTextField.text = ""
@@ -46,6 +67,41 @@ class AddCarViewController: UIViewController {
         customerTextField.text = ""
         contactTextField.text = ""
         
+    }
+    
+    private func refreshFont() {
+        
+        // let targetFont = self.dateCheckInTextField.font!.withSize(AppFontSize)
+        
+        //        regoLabel.font = targetFont
+        //        dateCheckInLabel.font = targetFont
+        //        datePromisedLabel.font = targetFont
+        //        customerLabel.font = targetFont
+        //        contactLabel.font = targetFont
+        //
+        //        regoTextField.font = targetFont
+        //        dateCheckInTextField.font = targetFont
+        //        datePromisedTextField.font = targetFont
+        //        customerTextField.font = targetFont
+        //        contactTextField.font = targetFont
+        //        statusLabel.font = targetFont
+        //        createButton.titleLabel?.font = targetFont
+        //
+        //        if traitCollection.horizontalSizeClass == .compact {
+        //            print("compact width")
+        //            dateCheckInLabel.text = "Check\nin Date"
+        //        } else if traitCollection.horizontalSizeClass == .regular {
+        //            print("regular width")
+        //            dateCheckInLabel.text = "Check-in Date"
+        //        }
+        
+        //dateCheckInLabel.text = (traitCollection.horizontalSizeClass == .compact ? "Check-in\nDate" : "Check-in Date")
+    }
+    
+    @IBAction func fontSizePressed(_ sender: Any) {
+        // U.fontSizePressed()
+        
+        // refreshFont()
     }
     
     @IBAction func createButtonPressed(_ sender: Any) {
@@ -118,76 +174,21 @@ class AddCarViewController: UIViewController {
                     realm.add(self.newCar)
                 }
                 self.clearView()
-                self.statusLabel.text = "Created car \(newCarRego!)"
+                
+                // pop a confirmation (deliberately to slow down work flow)
+                let alert = UIAlertController(title: "Created car \(newCarRego!)", message: "", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+                    alert.dismiss(animated: true, completion: nil)
+                }))
+                
+                self.present(alert, animated: true, completion: nil)
+                
             } catch {
                 let errMsg = "*** Error creating new car. \(error)"
                 self.statusLabel.text = errMsg
             }
         }
-    }
-    
-    func createDatePicker_Promised() {
         
-        // toolbar
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        
-        // bar button
-        let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(datePickerDonePressed_Promised))
-        toolbar.setItems([doneBtn], animated: true)
-        
-        // assign toolbar
-        datePromisedTextField.inputAccessoryView = toolbar
-        
-        // assign date picker to the text field
-        datePromisedTextField.inputView = datePicker_Promised
-        
-        // date picker mode
-        datePicker_Promised.datePickerMode = .date
-        datePicker_Promised.addTarget(self, action: #selector(datePickerValueChanged_Promised), for: .valueChanged)
-    }
-    
-    @objc func datePickerValueChanged_Promised() {
-        
-        datePromisedTextField.text = U.getFormattedDate(date: datePicker_Promised.date)
-    }
-    
-    @objc func datePickerDonePressed_Promised() {
-        
-        datePromisedTextField.text = U.getFormattedDate(date: datePicker_Promised.date)
-        self.view.endEditing(true)
-    }
-    
-    func createDatePicker_CheckIn() {
-        
-        // toolbar
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        
-        // bar button
-        let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(datePickerDonePressed_CheckIn))
-        toolbar.setItems([doneBtn], animated: true)
-        
-        // assign toolbar
-        dateCheckInTextField.inputAccessoryView = toolbar
-        
-        // assign date picker to the text field
-        dateCheckInTextField.inputView = datePicker_CheckIn
-        
-        // date picker mode
-        datePicker_CheckIn.datePickerMode = .date
-        datePicker_CheckIn.addTarget(self, action: #selector(datePickerValueChanged_CheckIn), for: .valueChanged)
-    }
-    
-    @objc func datePickerValueChanged_CheckIn() {
-        
-        dateCheckInTextField.text = U.getFormattedDate(date: datePicker_CheckIn.date)
-        //newCar.dateCheckIn = datePicker_CheckIn.date
-    }
-    
-    @objc func datePickerDonePressed_CheckIn() {
-        dateCheckInTextField.text = U.getFormattedDate(date: datePicker_CheckIn.date)
-        self.view.endEditing(true)        
         
     }
 }
