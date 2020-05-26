@@ -11,7 +11,6 @@ import Charts
 import SwipeCellKit
 
 class CarCell: SwipeTableViewCell {
-//class CarCell: UITableViewCell {
     
     @IBOutlet weak var regoLabel: UILabel!
     @IBOutlet weak var messageLabel: UILabel!
@@ -23,17 +22,5 @@ class CarCell: SwipeTableViewCell {
         super.awakeFromNib()
         
         progressBar.transform = progressBar.transform.scaledBy(x: 1, y: 5)
-        
-//        messageLabel.font = .preferredFont(forTextStyle: .body)
-//        messageLabel.adjustsFontForContentSizeCategory = true
-        
-        //messageLabel.font = messageLabel.font.withSize(28)
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        //backgroundColor = selected ? .red : .green
-    }
-    
 }

@@ -10,11 +10,6 @@ import Foundation
 
 struct K {
     
-    static let Defaults = UserDefaults.standard
-    //static let userDefaultFontSizeIndex = "fontSizeIndex"
-    //static let FontSize = [17, 28]
-    //static let DefaultFontSizeIndex = 0
-    
     static let appName = "GreaseMonkey"
     static let addCarSegue = "goToAddCar"
     static let carDetailSegue = "goToCarDetail"

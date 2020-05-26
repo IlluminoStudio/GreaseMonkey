@@ -33,7 +33,6 @@ class CustomDatePicker: UIDatePicker {
         toolbar.tintColor = .white
         toolbar.backgroundColor = .lightGray
         
-        //label.font = UIFont.systemFont(ofSize: 18)
         label.textColor = textColor
         label.textAlignment = .left
         label.text = "Select a Date"

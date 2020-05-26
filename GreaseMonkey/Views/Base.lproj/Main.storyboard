@@ -44,20 +44,12 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" title="Cars" id="3Dc-mb-McT">
-                        <rightBarButtonItems>
-                            <barButtonItem systemItem="add" id="uYZ-dE-Sgf">
-                                <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <connections>
-                                    <action selector="addButtonPressed:" destination="BYZ-38-t0r" id="daP-Q4-gjf"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem title="Font Size" image="textformat.size" catalog="system" id="aHj-ld-WeG" userLabel="Font Size">
-                                <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <connections>
-                                    <action selector="fontSizePressed:" destination="BYZ-38-t0r" id="Bns-RM-IbY"/>
-                                </connections>
-                            </barButtonItem>
-                        </rightBarButtonItems>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="uYZ-dE-Sgf">
+                            <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <connections>
+                                <action selector="addButtonPressed:" destination="BYZ-38-t0r" id="daP-Q4-gjf"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="searchBar" destination="fIg-H8-07v" id="X6K-Cl-0pY"/>
@@ -331,14 +323,7 @@
                             </mask>
                         </variation>
                     </view>
-                    <navigationItem key="navigationItem" title="Create A Car" id="EGN-m1-N5T">
-                        <barButtonItem key="rightBarButtonItem" title="Font Size" image="textformat.size" catalog="system" id="XOz-DK-4hh">
-                            <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
-                            <connections>
-                                <action selector="fontSizePressed:" destination="ywb-CB-HK9" id="ozd-AE-G97"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Create A Car" id="EGN-m1-N5T"/>
                     <connections>
                         <outlet property="contactLabel" destination="wGj-ar-Iog" id="vJB-8w-S1G"/>
                         <outlet property="contactTextField" destination="8R7-VZ-dVo" id="sla-0J-Dc9"/>
@@ -797,14 +782,7 @@
                         </variation>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Car Detail" id="rdJ-qQ-RLk">
-                        <barButtonItem key="rightBarButtonItem" title="Item" image="textformat.size" catalog="system" id="3VT-4v-mBA">
-                            <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
-                            <connections>
-                                <action selector="fontSizePressed:" destination="Yj5-cM-6b4" id="kmr-gN-cQC"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Car Detail" id="rdJ-qQ-RLk"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="contactLabel" destination="NgU-Eq-bdu" id="W5g-Wp-3nU"/>
@@ -857,7 +835,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="textformat.size" catalog="system" width="128" height="82"/>
         <namedColor name="BrandPurple">
             <color red="0.28200000524520874" green="0.20399999618530273" blue="0.83099997043609619" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

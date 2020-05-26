@@ -42,10 +42,7 @@ class CarDetailViewController: UIViewController {
     }
     
     override func viewDidLoad() {
-        //print("in CarDetailView, AppFontSize is \(AppFontSize)")
         super.viewDidLoad()
-        
-        refreshFont()
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -67,40 +64,6 @@ class CarDetailViewController: UIViewController {
         navBarAppearance.backgroundColor = screenColor
         self.navigationItem.standardAppearance = navBarAppearance
         
-    }
-    
-    private func refreshFont() {
-        //        datePromisedTextField.font = .preferredFont(forTextStyle: .body)
-        //        datePromisedTextField.adjustsFontForContentSizeCategory = true
-        
-//        let targetFont = self.dateCreateLabel.font!.withSize(AppFontSize)
-//        
-//        dateCreateLabelLeft.font = targetFont
-//        dateCheckInLabel.font = targetFont
-//        datePromisedLabel.font = targetFont
-//        customerLabel.font = targetFont
-//        contactLabel.font = targetFont
-//        jobsLabel.font = targetFont
-//        jobPlusSignLabel.titleLabel?.font = targetFont
-//        
-//        dateCreateLabel.font = targetFont
-//        dateCheckInTextField.font = targetFont
-//        datePromisedTextField.font = targetFont
-//        customerTextField.font = targetFont
-//        contactTextField.font = targetFont
-//        statusLabel.font = targetFont
-//        notesTextView.font = targetFont
-//        searchBar.searchTextField.font = targetFont
-//        
-//        //createButton.titleLabel!.font = targetFont
-//        
-//        tableView.reloadData()
-    }
-    
-    @IBAction func fontSizePressed(_ sender: UIBarButtonItem) {
-        //U.fontSizePressed()
-        
-        //refreshFont()
     }
     
     @objc func handleLongPress(longPressGesture: UILongPressGestureRecognizer) {
@@ -237,13 +200,6 @@ class CarDetailViewController: UIViewController {
                 }
             }
             
-            //            // validation - if flagged, then must specify notes
-            //            if (selectedCar?.hasFlagged)!, newNotes == K.notesPlaceHolder {
-            //                statusLabel.text = "Must specify notes when car is flagged"
-            //
-            //                return
-            //            }
-            
             // write to db
             DispatchQueue.main.async {
                 let realm = try! Realm()
@@ -275,14 +231,11 @@ extension CarDetailViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: K.jobCellIdentifier, for: indexPath) as! JobCell
         cell.delegate = self
         
-        //cell.nameLabel.font = cell.nameLabel.font.withSize(AppFontSize)
-        
         if let jobItem = jobs?[indexPath.row] {
             
             cell.nameLabel.text = jobItem.name
             cell.tickImg.isHidden = jobItem.done ? false : true
             cell.flagImg.isHidden = jobItem.flagged ? false : true
-            //cell.nameLabel.font = .preferredFont(forTextStyle: .body)
             
         } else {
             
@@ -372,7 +325,6 @@ extension CarDetailViewController: UITextViewDelegate {
         if notesTextView.text == K.notesPlaceHolder {
             notesTextView.text = ""
             notesTextView.textColor = .label
-            //notesTextView.font = notesTextView.font!.withSize(14)
         }
     }
     
@@ -380,7 +332,6 @@ extension CarDetailViewController: UITextViewDelegate {
         if notesTextView.text == "" {
             notesTextView.text = K.notesPlaceHolder
             notesTextView.textColor = .placeholderText
-            //notesTextView.font = notesTextView.font!.withSize(17)
         }
     }
 }

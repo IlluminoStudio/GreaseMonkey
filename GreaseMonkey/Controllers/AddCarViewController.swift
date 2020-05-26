@@ -30,7 +30,6 @@ class AddCarViewController: UIViewController {
     let newCar = Car()
     
     override func viewDidLoad() {
-        //print("in AddCarView, AppFontSize is \(AppFontSize)")
         super.viewDidLoad()
         
         statusLabel.numberOfLines = 0
@@ -55,11 +54,6 @@ class AddCarViewController: UIViewController {
     
     private func clearView() {
         
-        refreshFont()
-        
-        //datePromisedTextField.textAlignment = .center
-        //dateCheckInTextField.textAlignment = .center
-        
         regoTextField.text = ""
         dateCheckInTextField.text = ""
         datePromisedTextField.text = ""
@@ -67,41 +61,6 @@ class AddCarViewController: UIViewController {
         customerTextField.text = ""
         contactTextField.text = ""
         
-    }
-    
-    private func refreshFont() {
-        
-        // let targetFont = self.dateCheckInTextField.font!.withSize(AppFontSize)
-        
-        //        regoLabel.font = targetFont
-        //        dateCheckInLabel.font = targetFont
-        //        datePromisedLabel.font = targetFont
-        //        customerLabel.font = targetFont
-        //        contactLabel.font = targetFont
-        //
-        //        regoTextField.font = targetFont
-        //        dateCheckInTextField.font = targetFont
-        //        datePromisedTextField.font = targetFont
-        //        customerTextField.font = targetFont
-        //        contactTextField.font = targetFont
-        //        statusLabel.font = targetFont
-        //        createButton.titleLabel?.font = targetFont
-        //
-        //        if traitCollection.horizontalSizeClass == .compact {
-        //            print("compact width")
-        //            dateCheckInLabel.text = "Check\nin Date"
-        //        } else if traitCollection.horizontalSizeClass == .regular {
-        //            print("regular width")
-        //            dateCheckInLabel.text = "Check-in Date"
-        //        }
-        
-        //dateCheckInLabel.text = (traitCollection.horizontalSizeClass == .compact ? "Check-in\nDate" : "Check-in Date")
-    }
-    
-    @IBAction func fontSizePressed(_ sender: Any) {
-        // U.fontSizePressed()
-        
-        // refreshFont()
     }
     
     @IBAction func createButtonPressed(_ sender: Any) {

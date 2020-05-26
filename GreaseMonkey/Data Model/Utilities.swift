@@ -35,14 +35,6 @@ class U {
         return result
     }
     
-//    static func fontSizePressed() {
-//        
-//        AppFontSizeIndex = (AppFontSizeIndex + 1) % K.FontSize.count
-//        AppFontSize = CGFloat(K.FontSize[AppFontSizeIndex])
-//        
-//        K.Defaults.set(AppFontSizeIndex, forKey: K.userDefaultFontSizeIndex)
-//    }
-    
     static func validateDateString(_ s: String, dateFormatStr: String = "E d MMM, yyyy") -> Bool {
         var result: Bool = false
         

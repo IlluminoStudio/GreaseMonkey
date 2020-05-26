@@ -22,7 +22,6 @@ class CarViewController: UIViewController {
     var cars: Results<Car>?
     
     override func viewDidLoad() {
-        //print("in CarView, AppFontSize is \(AppFontSize)")
         super.viewDidLoad()
         
         tableView.rowHeight = 120
@@ -43,13 +42,6 @@ class CarViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        
-//        if let indexPath = tableView.indexPathForSelectedRow {
-//            
-//            //tableView.deselectRow(at: indexPath, animated: false)
-//            print("cell selected at \(indexPath.row)")
-//            
-//        }
         
         loadCars()
     }
@@ -81,103 +73,92 @@ class CarViewController: UIViewController {
         
         tableView.reloadData()
     }
-    
-    
-    @IBAction func fontSizePressed(_ sender: Any) {
-//        U.fontSizePressed()
-//        searchBar.searchTextField.font = searchBar.searchTextField.font?.withSize(AppFontSize)
-//
-//        tableView.reloadData()
-    }
 }
-
-extension CarViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //return regos.count
-        return cars?.count ?? 1
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: K.carCellIdentifier, for: indexPath) as! CarCell
-        cell.delegate = self
+    extension CarViewController: UITableViewDataSource {
+        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+            //return regos.count
+            return cars?.count ?? 1
+        }
         
-        //cell.messageLabel.font = cell.messageLabel.font.withSize(AppFontSize)
-        
-        if let currentCar = cars?[indexPath.row] {
+        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.carCellIdentifier, for: indexPath) as! CarCell
+            cell.delegate = self
             
-            // flag
-            cell.flagImg.isHidden = currentCar.hasFlagged ? false : true
-            
-            // rego label
-            cell.regoLabel.text = currentCar.rego
-            cell.regoLabel.textColor = currentCar.color
-            
-            // status message
-            cell.messageLabel.textColor = currentCar.color
-            var statusMessage: String
-            
-            if currentCar.hasFlagged {
-                statusMessage = "* Special\nsee car details"
-            } else if currentCar.datePromised == nil {
-                statusMessage = "NA (missing Date Promised)"
-            } else if currentCar.aggregatedStatus == K.carStatusPurple {
-                statusMessage = "Pick up ready\n\(currentCar.coreStatus)"
-            } else {
+            if let currentCar = cars?[indexPath.row] {
                 
-                statusMessage = "Target is \(U.getFormattedDate(with: K.dateFormatShortter, date: currentCar.datePromised))\n\(currentCar.coreStatus)"
+                // flag
+                cell.flagImg.isHidden = currentCar.hasFlagged ? false : true
+                
+                // rego label
+                cell.regoLabel.text = currentCar.rego
+                cell.regoLabel.textColor = currentCar.color
+                
+                // status message
+                cell.messageLabel.textColor = currentCar.color
+                var statusMessage: String
+                
+                if currentCar.hasFlagged {
+                    statusMessage = "* Special\nsee car details"
+                } else if currentCar.datePromised == nil {
+                    statusMessage = "NA (missing Date Promised)"
+                } else if currentCar.aggregatedStatus == K.carStatusPurple {
+                    statusMessage = "Pick up ready\n\(currentCar.coreStatus)"
+                } else {
+                    
+                    statusMessage = "Target is \(U.getFormattedDate(with: K.dateFormatShortter, date: currentCar.datePromised))\n\(currentCar.coreStatus)"
+                }
+                cell.messageLabel.text = statusMessage
+                
+                // progress bar
+                cell.progressBar.tintColor = currentCar.color
+                cell.progressBar.progress = 1 - Float(currentCar.daysLeft) / Float(currentCar.totalWorkDay)
+                
+                // pie chart
+                let progress = currentCar.percentageComplete
+                
+                let pieChart = cell.pieChartView as! PieChartView
+                
+                pieChart.data = customizeChart(dataPoints: [".", ".."], values: [progress, 1 - progress], color: currentCar.color! )
+                pieChart.legend.enabled = false
+                pieChart.drawEntryLabelsEnabled = false
+                
+            } else {
+                cell.regoLabel.text = "No Cars Added Yet"
             }
-            cell.messageLabel.text = statusMessage
             
-            // progress bar
-            cell.progressBar.tintColor = currentCar.color
-            cell.progressBar.progress = 1 - Float(currentCar.daysLeft) / Float(currentCar.totalWorkDay)
-            
-            // pie chart
-            let progress = currentCar.percentageComplete
-            
-            let pieChart = cell.pieChartView as! PieChartView
-            
-            pieChart.data = customizeChart(dataPoints: [".", ".."], values: [progress, 1 - progress], color: currentCar.color! )
-            pieChart.legend.enabled = false
-            pieChart.drawEntryLabelsEnabled = false
-            
-        } else {
-            cell.regoLabel.text = "No Cars Added Yet"
+            return cell
         }
         
-        return cell
-    }
-    
-    func customizeChart(dataPoints: [String], values: [Double], color: UIColor = UIColor.systemGray) -> PieChartData {
-        
-        // 1. Set ChartDataEntry - stores the values of each element in an array
-        var dataEntries: [ChartDataEntry] = []
-        
-        for i in 0..<dataPoints.count {
-            let dataEntry = PieChartDataEntry(value: values[i], label: dataPoints[i], data: dataPoints[i] as AnyObject)
-            dataEntries.append(dataEntry)
+        func customizeChart(dataPoints: [String], values: [Double], color: UIColor = UIColor.systemGray) -> PieChartData {
+            
+            // 1. Set ChartDataEntry - stores the values of each element in an array
+            var dataEntries: [ChartDataEntry] = []
+            
+            for i in 0..<dataPoints.count {
+                let dataEntry = PieChartDataEntry(value: values[i], label: dataPoints[i], data: dataPoints[i] as AnyObject)
+                dataEntries.append(dataEntry)
+            }
+            
+            // 2. Set ChartDataSet - use info from "1" to custom how to display them, here we only specify colors
+            let pieChartDataSet = PieChartDataSet(entries: dataEntries, label: nil)
+            
+            pieChartDataSet.colors = [color, UIColor.systemGray]
+            
+            // 3. Set ChartData - use info from "2" as the chart's data, here we also changing number formats, eg. 15.0 -> 15
+            let pieChartData = PieChartData(dataSet: pieChartDataSet)
+            
+            let format = NumberFormatter()
+            format.numberStyle = .none
+            let formatter = DefaultValueFormatter(formatter: format)
+            pieChartData.setValueFormatter(formatter)
+            
+            // 4. Assign "3" as the chart's data
+            //pieChartView.data = pieChartData
+            return pieChartData
         }
-        
-        // 2. Set ChartDataSet - use info from "1" to custom how to display them, here we only specify colors
-        let pieChartDataSet = PieChartDataSet(entries: dataEntries, label: nil)
-        
-        pieChartDataSet.colors = [color, UIColor.systemGray]
-        
-        // 3. Set ChartData - use info from "2" as the chart's data, here we also changing number formats, eg. 15.0 -> 15
-        let pieChartData = PieChartData(dataSet: pieChartDataSet)
-        
-        let format = NumberFormatter()
-        format.numberStyle = .none
-        let formatter = DefaultValueFormatter(formatter: format)
-        pieChartData.setValueFormatter(formatter)
-        
-        // 4. Assign "3" as the chart's data
-        //pieChartView.data = pieChartData
-        return pieChartData
     }
     
-    
-}
+
 
 extension CarViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
