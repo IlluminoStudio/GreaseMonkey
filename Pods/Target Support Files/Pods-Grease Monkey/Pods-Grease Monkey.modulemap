@@ -1,0 +1,6 @@
+framework module Pods_Grease_Monkey {
+  umbrella header "Pods-Grease Monkey-umbrella.h"
+
+  export *
+  module * { export * }
+}
