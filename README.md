@@ -1,6 +1,23 @@
 # 🔧 GreaseMonkey - Auto Shop Management iOS App
 
-GreaseMonkey is a streamlined iOS application designed to help auto repair shops manage their vehicle repairs and service jobs efficiently. Built with Swift and using Realm for data persistence, it provides an intuitive interface for tracking vehicles, jobs, and deadlines.
+<p align="center">
+<table>
+<tr>
+  <td align="center" width="50%">
+    <img src="docs/images/screenshot-1.png" alt="GreaseMonkey App Main Interface" width="450">
+    <br>
+    <em>Vehicle Management Interface</em>
+  </td>
+  <td align="center" width="50%">
+    <img src="docs/images/screenshot-2.png" alt="GreaseMonkey App Job Details" width="450">
+    <br>
+    <em>Job Details View</em>
+  </td>
+</tr>
+</table>
+</p>
+
+GreaseMonkey is an iOS app which supports managing mechanics' workflow from a handheld device. 
 
 ## ✨ Features
 
